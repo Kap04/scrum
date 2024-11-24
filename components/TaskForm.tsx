@@ -1,23 +1,27 @@
 // components/TaskForm.tsx
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 import { taskService } from '@/lib/firebase/taskService';
-import { ITaskData, ICreateTaskData } from '@/lib/firebase/types';
+import type { ITaskData, ICreateTaskData, IUpdateTaskData } from '@/lib/firebase/types';
+import { teamService } from '@/lib/firebase/teamService';
 
-
-
-interface FormErrors {
-  title?: string;
-  description?: string;
-}
-
-// In TaskForm.tsx
 interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -26,7 +30,7 @@ interface TaskFormProps {
     id: string;
     name: string;
   };
-  existingTask?: ITaskData | null;  
+  existingTask?: ITaskData;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({
@@ -34,67 +38,67 @@ const TaskForm: React.FC<TaskFormProps> = ({
   onClose,
   teamId,
   currentUser,
-  existingTask
+  existingTask,
 }) => {
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [formData, setFormData] = useState<ICreateTaskData>({
-    title: existingTask?.title || '',
-    description: existingTask?.description || '',
-    assignedTo: existingTask?.assignedTo || null,
-    teamId,
-    createdBy: currentUser.id
+  const [teamMembers, setTeamMembers] = React.useState<Array<{ userId: string; name: string }>>([]);
+  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<ICreateTaskData>({
+    defaultValues: existingTask || {
+      title: '',
+      description: '',
+      status: 'pending',
+      teamId: teamId,
+      createdBy: currentUser.id,
+      assignedTo: currentUser.id // Default to current user
+    }
   });
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
+  React.useEffect(() => {
+    // Fetch team members when the form opens
+    const fetchTeamMembers = async () => {
+      const team = await teamService.getTeamById(teamId);
+      if (team) {
+        setTeamMembers(team.members.map(member => ({
+          userId: member.userId,
+          name: member.name
+        })));
+      }
+    };
     
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
+    if (isOpen) {
+      fetchTeamMembers();
     }
-    
-    if (!formData.description.trim()) {
-      newErrors.description = 'Description is required';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  }, [isOpen, teamId]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-    
-    setLoading(true);
+  const onSubmit = async (data: ICreateTaskData) => {
     try {
       if (existingTask) {
-        await taskService.updateTask(existingTask.taskID, {
-          title: formData.title,
-          description: formData.description,
-          assignedTo: formData.assignedTo
-        });
+        const updateData: IUpdateTaskData = {
+          title: data.title,
+          description: data.description,
+          status: data.status,
+          assignedTo: data.assignedTo
+        };
+        await taskService.updateTask(existingTask.taskID, updateData);
         toast({
-          title: 'Task updated successfully',
-          variant: 'default'
+          title: 'Task updated',
+          description: 'Task has been successfully updated',
         });
       } else {
-        await taskService.createTask(formData);
+        await taskService.createTask(data);
         toast({
-          title: 'Task created successfully',
-          variant: 'default'
+          title: 'Task created',
+          description: 'New task has been created',
         });
       }
+      reset();
       onClose();
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to save task. Please try again.',
-        variant: 'destructive'
+        description: error instanceof Error ? error.message : 'Failed to save task',
+        variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -102,55 +106,71 @@ const TaskForm: React.FC<TaskFormProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            {existingTask ? 'Edit Task' : 'Create New Task'}
-          </DialogTitle>
+          <DialogTitle>{existingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                disabled={loading}
-                className={errors.title ? 'border-red-500' : ''}
-              />
-              {errors.title && (
-                <span className="text-sm text-red-500">{errors.title}</span>
-              )}
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                disabled={loading}
-                className={errors.description ? 'border-red-500' : ''}
-              />
-              {errors.description && (
-                <span className="text-sm text-red-500">{errors.description}</span>
-              )}
-            </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <Input
+              placeholder="Task Title"
+              {...register('title', { required: 'Title is required' })}
+            />
+            {errors.title && (
+              <p className="text-sm text-destructive">{errors.title.message}</p>
+            )}
           </div>
           
-          <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={onClose}
-              disabled={loading}
+          <div>
+            <Textarea
+              placeholder="Task Description"
+              {...register('description', { required: 'Description is required' })}
+            />
+            {errors.description && (
+              <p className="text-sm text-destructive">{errors.description.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Select
+              defaultValue={existingTask?.status || 'pending'}
+              onValueChange={(value) => setValue('status', value as 'pending' | 'doing' | 'completed')}
             >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">To Do</SelectItem>
+                <SelectItem value="doing">In Progress</SelectItem>
+                <SelectItem value="completed">Done</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Select
+              defaultValue={existingTask?.assignedTo || currentUser.id}
+              onValueChange={(value) => setValue('assignedTo', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Assign to" />
+              </SelectTrigger>
+              <SelectContent>
+                {teamMembers.map((member) => (
+                  <SelectItem key={member.userId} value={member.userId}>
+                    {member.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {existingTask ? 'Update' : 'Create'} Task
+            <Button type="submit">
+              {existingTask ? 'Update Task' : 'Create Task'}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

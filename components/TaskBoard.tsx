@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { taskService } from '@/lib/firebase/taskService';
-import type { ITaskData } from '@/lib/firebase/types';
+import type { ITaskData , ITeam } from '@/lib/firebase/types';
 import TaskForm from './TaskForm';
 import ErrorBoundary from './ErrorBoundary';
+import { teamService } from '@/lib/firebase/teamService';
 
 interface ColumnType {
   id: 'pending' | 'doing' | 'completed';
@@ -65,10 +66,21 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<ITaskData[]>([]);
+  // Change this line:
+  const [team, setTeam] = useState<ITeam | null>(null);
   const [draggedTask, setDraggedTask] = useState<ITaskData | null>(null);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ITaskData | null>(null);
 
+  // Update the team subscription:
+  useEffect(() => {
+    const unsubscribe = teamService.subscribeToTeamById(teamId, (teamData) => {
+      setTeam(teamData);
+    });
+
+    return () => unsubscribe();
+  }, [teamId]);
+  // Modify task subscription to be team-specific
   useEffect(() => {
     const unsubscribe = taskService.subscribeToTeamTasks(teamId, (newTasks) => {
       setTasks(newTasks);
@@ -139,7 +151,14 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
       <Card className="w-full max-w-6xl mx-auto">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Team Task Board</CardTitle>
+            <div>
+              <CardTitle className="mb-2">
+                {team?.name || 'Team'} Task Board
+              </CardTitle>
+              <p className="text-sm text-gray-500">
+                Team Code: {team?.joinCode}
+              </p>
+            </div>
             <Button
               onClick={() => {
                 setSelectedTask(null);
