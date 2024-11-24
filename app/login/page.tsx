@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { auth } from '../../lib/firebase/config';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
