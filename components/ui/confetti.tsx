@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useMemo,
-  useRef,
+  useRef, 
 } from "react";
 import type {
   GlobalOptions as ConfettiGlobalOptions,

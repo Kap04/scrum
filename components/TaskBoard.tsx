@@ -1,5 +1,4 @@
-// components/TaskBoard.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Loader2 } from 'lucide-react';
@@ -8,6 +7,7 @@ import { taskService } from '@/lib/firebase/taskService';
 import type { ITaskData } from '@/lib/firebase/types';
 import TaskForm from './TaskForm';
 import ErrorBoundary from './ErrorBoundary';
+import confetti from 'canvas-confetti';
 
 interface ColumnType {
   id: 'pending' | 'doing' | 'completed';
@@ -70,13 +70,24 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
   const [selectedTask, setSelectedTask] = useState<ITaskData | null>(null);
 
   useEffect(() => {
-    const unsubscribe = taskService.subscribeToTeamTasks(teamId, (newTasks) => {
-      setTasks(newTasks);
+    setLoading(true);
+    const unsubscribe = taskService.subscribeToTeamTasks(teamId, (fetchedTasks) => {
+      setTasks(fetchedTasks);
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, [teamId]);
+
+  useEffect(() => {
+    if (tasks.length > 0 && tasks.every(task => task.status === 'completed')) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+  }, [tasks]);
 
   const handleDragStart = (task: ITaskData) => {
     setDraggedTask(task);
@@ -160,7 +171,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
               <Loader2 className="animate-spin h-8 w-8" />
             </div>
           ) : (
-            <div className="flex flex-col  md:flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               {columns.map((column) => (
                 <div
                   key={column.id}
@@ -172,7 +183,6 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
                   <div className="space-y-2 text-zinc-300">
                     {groupedTasks[column.id].map((task) => (
                       <TaskCard
-
                         key={task.taskID}
                         task={task}
                         onEdit={handleEditTask}
@@ -197,7 +207,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
           }}
           teamId={teamId}
           currentUser={currentUser}
-          existingTask={selectedTask ?? undefined}  // Convert null to undefined
+          existingTask={selectedTask ?? undefined}
         />
       )}
     </ErrorBoundary>
@@ -205,3 +215,4 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
 };
 
 export default TaskBoard;
+
