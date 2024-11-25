@@ -87,7 +87,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
         });
       }
       onClose();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error saving task:', err);
       toast({
         title: 'Error',
         description: 'Failed to save task. Please try again.',
@@ -97,6 +98,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       setLoading(false);
     }
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

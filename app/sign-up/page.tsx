@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../../lib/firebase/config';
-import {  useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { FirebaseError } from 'firebase/app';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -11,67 +12,77 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Function for signing up with email and password
-  const handleSignup = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     try {
-      setError(null); // Clear previous errors
+      setError(null);
       await createUserWithEmailAndPassword(auth, email, password);
-      alert('User signed up successfully!');
-      router.push('/s'); // Redirect to dashboard after successful signup
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong. Please try again.');
+      router.push('/s');
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        setError(err.message || 'Failed to create account. Please try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
-  // Function for Google Sign-In
   const handleGoogleSignup = async () => {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      alert('Signed in with Google successfully!');
-    } catch (err: any) {
-      setError(err.message || 'Google sign-in failed. Please try again.');
+      router.push('/s');
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        setError(err.message || 'Google sign-up failed. Please try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg text-gray-600 shadow-lg p-6">
-        <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">Sign Up</h1>
-        <div className="space-y-4">
-          {/* Email Field */}
+    <div className="min-h-screen flex items-center justify-center bg-stone-950 p-4">
+      <div className="w-full max-w-md bg-stone-800 rounded-lg text-zinc-300 shadow-lg p-6">
+        <h1 className="text-2xl font-bold text-zinc-300 text-center mb-6">Sign Up</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full p-3 bg-gray-300 text-gray-800  border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+            autoComplete="email"
           />
-          {/* Password Field */}
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+            autoComplete="new-password"
           />
-          {/* Error Message */}
+
           {error && (
             <p className="text-red-600 text-sm text-center">
               {error}
             </p>
           )}
-          {/* Signup Button */}
           <button
-            onClick={handleSignup}
+            type="submit"
             className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition"
           >
             Sign Up
           </button>
-          {/* Google Signup Button */}
+        </form>
+
+        <div className="mt-4">
           <button
             onClick={handleGoogleSignup}
-            className="w-full flex items-center justify-center bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition"
+            type="button"
+            className="w-full flex items-center justify-center bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -90,7 +101,7 @@ export default function SignupPage() {
             Sign Up with Google
           </button>
         </div>
-        {/* Redirect to Login */}
+
         <p className="text-gray-600 text-sm text-center mt-4">
           Already have an account?{' '}
           <a href="/login" className="text-blue-500 hover:underline">
@@ -101,3 +112,4 @@ export default function SignupPage() {
     </div>
   );
 }
+

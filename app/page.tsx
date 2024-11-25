@@ -1,114 +1,78 @@
-import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import AnimatedGrid from "@/components/ui/animated-grid-pattern"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import ShinyButton from "@/components/ui/shiny-button"
 
-export default function LandingPage() {
+export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="bg-white shadow-sm">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-          <div className="flex-shrink-0 flex items-center">
-            <span className="text-2xl font-bold text-indigo-600">Scrum</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link 
-              href="/login"
-              className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Log in
-            </Link>
-            <Link 
-              href="/sign-up"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-            >
-              Sign up
-            </Link>
-          </div>
-        </nav>
-      </header>
+    <main className="flex flex-col min-h-screen">
+      <section className="relative flex flex-col items-center justify-center min-h-screen text-center px-4">
+        <AnimatedGrid
+          className={cn(
+            "bg-gradient-to-b",
+            //"from-transparent via-white/30 to-transparent",
+            "inset-x-0 inset-y-[-30%] w-full h-[150%] skew-y-12",
+          )}
+          width={70}
+          height={100}
+          strokeDasharray={2}
+          numSquares={10}
+          maxOpacity={0.2}
+          duration={3}
+          repeatDelay={1}
+        />
+        <div className="z-10">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl text-gray-300 md:text-6xl lg:text-9xl">
+            Welcome to <span className="text-zinc-200">Scrum</span>
+          </h1>
+          <p className="mt-6 text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto">
+            Streamline your workflow and boost productivity with our intuitive task management solution.
+            Scrum helps you stay organized, prioritize tasks, and collaborate with ease, ensuring that your team stays on track.
+          </p>
 
-      <main className="flex-grow bg-white">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-              <span className="block">Manage your tasks with</span>
-              <span className="block text-indigo-600">Scrum</span>
-            </h1>
-            <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-              Boost your productivity and streamline your workflow with our intuitive task management app.
-            </p>
-            <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-              <div className="rounded-md shadow">
-                <Link
-                  href="/sign-up"
-                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"
-                >
-                  Get started
-                </Link>
-              </div>
-              <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-                <Link
-                  href="#features"
-                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
-                >
-                  Learn more
-                </Link>
-              </div>
+          <div className="mt-10 flex justify-center  gap-4">
+
+            <Link href='/sign-up' ><ShinyButton>Get Started</ShinyButton></Link>
+          
+          </div>
+        </div>
+      </section>
+
+          {/* bg-secondary/50 */}
+      <section className="flex flex-col items-center justify-center min-h-screen z-0 bg-gray-950 px-4">
+        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl mb-6">
+          Why Choose Scrum?
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl">
+          {[
+            { title: "Intuitive Interface", description: "Easy-to-use design that simplifies task management." },
+            { title: "Real-time Collaboration", description: "Work seamlessly with your team, anytime, anywhere." },
+            { title: "Customizable Workflows", description: "Tailor Scrum to fit your unique project needs." },
+            { title: "Detailed Analytics", description: "Gain insights to optimize your team's performance." },
+            { title: "Integration Friendly", description: "Connects with your favorite tools for a smooth workflow." },
+            { title: "Secure & Reliable", description: "Your data is protected with enterprise-grade security." },
+          ].map((item, index) => (
+            <div key={index} className="bg-background/50 p-6 rounded-lg shadow-lg">
+              <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+              <p className="text-muted-foreground">{item.description}</p>
             </div>
-          </div>
+          ))}
         </div>
+      </section>
 
-        <div id="features" className="bg-gray-50 py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-8">
-              Key Features
-            </h2>
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                'Task Organization',
-                'Team Collaboration',
-                'Progress Tracking',
-                'Customizable Workflows',
-                'Deadline Management',
-                'Reporting and Analytics'
-              ].map((feature, index) => (
-                <div key={index} className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="px-4 py-5 sm:p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 bg-indigo-500 rounded-md p-3">
-                        <ArrowRight className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="ml-4">
-                        <h3 className="text-lg font-medium text-gray-900">{feature}</h3>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <footer className="bg-white">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
-          <div className="flex justify-center space-x-6 md:order-2">
-            {['Facebook', 'Twitter', 'GitHub'].map((item) => (
-              <a key={item} href="#" className="text-gray-400 hover:text-gray-500">
-                <span className="sr-only">{item}</span>
-                <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
-                </svg>
-              </a>
-            ))}
-          </div>
-          <div className="mt-8 md:mt-0 md:order-1">
-            <p className="text-center text-base text-gray-400">
-              &copy; 2023 Scrum, Inc. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      <section className="flex flex-col items-center justify-center min-h-screen px-4">
+        <h2 className="text-3xl font-bold text-zinc-200  tracking-tight sm:text-4xl md:text-6xl mb-6 text-center">
+          Ready to Transform Your Workflow?
+        </h2>
+        <p className="text-xl text-muted-foreground max-w-2xl text-center mb-10">
+        Join thousands of users already using Scrum to streamline workflows, boost efficiency, and drive productivity. Transform how you work and stay ahead of the competition.
+        </p>
+        <Button className="bg-zinc-300" asChild size="lg">
+          <Link href="/signup">Start Now!</Link>
+        </Button>
+      </section>
+    </main>
   )
 }
 

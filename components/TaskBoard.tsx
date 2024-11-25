@@ -36,12 +36,12 @@ const TaskCard: React.FC<{
   onDragStart: (task: ITaskData) => void;
 }> = ({ task, onEdit, onDelete, onDragStart }) => (
   <div
-    className="bg-white p-4 rounded-lg shadow mb-2 cursor-move"
+    className="bg-opacity-70 bg-black p-4 rounded-lg shadow mb-2 cursor-move"
     draggable
     onDragStart={() => onDragStart(task)}
   >
     <h3 className="font-medium mb-1">{task.title}</h3>
-    <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+    <p className="text-sm text-zinc-400 mb-2">{task.description}</p>
     <div className="flex justify-end gap-2">
       <Button
         variant="outline"
@@ -94,7 +94,8 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
           title: 'Task status updated',
           description: `Task moved to ${status}`,
         });
-      } catch (error) {
+      } catch (err) {
+        console.error('Error updating task status:', err);
         toast({
           title: 'Error updating task',
           description: 'Failed to update task status',
@@ -118,7 +119,8 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
           title: 'Task deleted',
           description: 'Task has been successfully deleted',
         });
-      } catch (error) {
+      } catch (err) {
+        console.error('Error deleting task:', err);
         toast({
           title: 'Error deleting task',
           description: 'Failed to delete task',
@@ -136,16 +138,16 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
 
   return (
     <ErrorBoundary>
-      <Card className="w-full max-w-6xl mx-auto">
+      <Card className="w-full max-w-6xl bg-stone-700 bg-opacity-40 mx-auto">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Team Task Board</CardTitle>
+            <CardTitle className='text-2xl text-zinc-200'>Team Task Board</CardTitle>
             <Button
               onClick={() => {
                 setSelectedTask(null);
                 setIsTaskFormOpen(true);
               }}
-              className="flex items-center gap-2"
+              className="flex bg-zinc-400 items-center gap-2"
             >
               <PlusCircle className="w-4 h-4" />
               Add Task
@@ -158,7 +160,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
               <Loader2 className="animate-spin h-8 w-8" />
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col  md:flex-row gap-4">
               {columns.map((column) => (
                 <div
                   key={column.id}
@@ -166,10 +168,11 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
                   onDragOver={handleDragOver}
                   onDrop={() => handleDrop(column.id)}
                 >
-                  <h2 className="font-semibold mb-4">{column.title}</h2>
-                  <div className="space-y-2">
+                  <h2 className="font-semibold mb-4 text-gray-950">{column.title}</h2>
+                  <div className="space-y-2 text-zinc-300">
                     {groupedTasks[column.id].map((task) => (
                       <TaskCard
+
                         key={task.taskID}
                         task={task}
                         onEdit={handleEditTask}

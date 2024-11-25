@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../../lib/firebase/config';
 import { useRouter } from 'next/navigation';
+import { FirebaseError } from 'firebase/app';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,68 +12,77 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Function for logging in with email and password
-  const handleLogin = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     try {
-      setError(null); // Clear previous errors
+      setError(null);
       await signInWithEmailAndPassword(auth, email, password);
-      alert('User logged in successfully!');
-      router.push('/s'); // Redirect to dashboard after successful login
-    } catch (err: any) {
-      setError(err.message || 'Invalid credentials. Please try again.');
+      router.push('/s');
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        setError(err.message || 'Invalid credentials. Please try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
-  // Function for Google Sign-In
   const handleGoogleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      alert('Logged in with Google successfully!');
-      router.push('/s'); // Redirect to dashboard after successful login
-    } catch (err: any) {
-      setError(err.message || 'Google sign-in failed. Please try again.');
+      router.push('/s');
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        setError(err.message || 'Google sign-in failed. Please try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg text-gray-600 shadow-lg p-6">
-        <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">Log In</h1>
-        <div className="space-y-4">
-          {/* Email Field */}
+    <div className="min-h-screen flex items-center justify-center bg-stone-900 p-4">
+      <div className="w-full max-w-md bg-stone-800 rounded-lg text-gray-600 shadow-lg p-6">
+        <h1 className="text-2xl font-bold text-zinc-300 text-center mb-6">Log In</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+            autoComplete="email"
           />
-          {/* Password Field */}
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+            autoComplete="current-password"
           />
-          {/* Error Message */}
+
           {error && (
             <p className="text-red-600 text-sm text-center">
               {error}
             </p>
           )}
-          {/* Login Button */}
           <button
-            onClick={handleLogin}
+            type="submit"
             className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition"
           >
             Log In
           </button>
-          {/* Google Login Button */}
+        </form>
+
+        <div className="mt-4">
           <button
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition"
+            type="button"
+            className="w-full flex items-center justify-center bg-zinc-500 text-white py-3 rounded-lg hover:bg-zinc-600 transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -91,10 +101,10 @@ export default function LoginPage() {
             Log In with Google
           </button>
         </div>
-        {/* Redirect to Signup */}
+
         <p className="text-gray-600 text-sm text-center mt-4">
-          Don't have an account?{' '}
-          <a href="/signup" className="text-blue-500 hover:underline">
+          Don&apos;t have an account?{' '}
+          <a href="/sign-up" className="text-blue-500 hover:underline">
             Sign Up
           </a>
         </p>
@@ -102,3 +112,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
