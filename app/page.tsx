@@ -8,10 +8,10 @@ export default function Home() {
   return (
     <main className="flex flex-col min-h-screen">
       <section className="relative flex flex-col items-center justify-center min-h-screen text-center px-4">
+        
         <AnimatedGrid
           className={cn(
             "bg-gradient-to-b",
-            //"from-transparent via-white/30 to-transparent",
             "inset-x-0 inset-y-[-30%] w-full h-[150%] skew-y-12",
           )}
           width={70}
@@ -20,7 +20,6 @@ export default function Home() {
           numSquares={10}
           maxOpacity={0.2}
           duration={3}
-          repeatDelay={1}
         />
         <div className="z-10">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl text-gray-300 md:text-6xl lg:text-9xl">
@@ -34,12 +33,12 @@ export default function Home() {
           <div className="mt-10 flex justify-center  gap-4">
 
             <Link href='/sign-up' ><ShinyButton>Get Started</ShinyButton></Link>
-          
+
           </div>
         </div>
       </section>
 
-          {/* bg-secondary/50 */}
+      {/* bg-secondary/50 */}
       <section className="flex flex-col items-center justify-center min-h-screen z-0 bg-gray-950 px-4">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl mb-6">
           Why Choose Scrum?
@@ -66,7 +65,7 @@ export default function Home() {
           Ready to Transform Your Workflow?
         </h2>
         <p className="text-xl text-muted-foreground max-w-2xl text-center mb-10">
-        Join thousands of users already using Scrum to streamline workflows, boost efficiency, and drive productivity. Transform how you work and stay ahead of the competition.
+          Join thousands of users already using Scrum to streamline workflows, boost efficiency, and drive productivity. Transform how you work and stay ahead of the competition.
         </p>
         <Button className="bg-zinc-300" asChild size="lg">
           <Link href="/signup">Start Now!</Link>
