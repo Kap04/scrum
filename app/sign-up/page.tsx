@@ -51,7 +51,7 @@ export default function SignupPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full p-3 bg-gray-300 text-gray-800  border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full p-3 bg-stone-800 placeholder:text-zinc-500  text-zinc-300  border-2 border-zinc-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
             autoComplete="email"
           />
@@ -60,7 +60,7 @@ export default function SignupPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full p-3 bg-stone-800 border-2 placeholder:text-zinc-500 border-zinc-500 rounded-lg text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
             autoComplete="new-password"
           />
@@ -102,9 +102,9 @@ export default function SignupPage() {
           </button>
         </div>
 
-        <p className="text-gray-600 text-sm text-center mt-4">
+        <p className="text-zinc-300 text-sm text-center mt-4">
           Already have an account?{' '}
-          <a href="/login" className="text-blue-500 hover:underline">
+          <a href="/login" className="text-white hover:underline">
             Log In
           </a>
         </p>

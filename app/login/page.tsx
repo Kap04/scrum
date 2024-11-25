@@ -51,7 +51,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full p-3 text-zinc-300 border-2 placeholder:text-zinc-500 border-zinc-500 bg-stone-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
             autoComplete="email"
           />
@@ -60,7 +60,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full p-3 border-2 text-zinc-300 placeholder:text-zinc-500 border-zinc-500 bg-stone-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
             autoComplete="current-password"
           />
@@ -102,9 +102,9 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <p className="text-gray-600 text-sm text-center mt-4">
+        <p className="text-zinc-300 text-sm text-center mt-4">
           Don&apos;t have an account?{' '}
-          <a href="/sign-up" className="text-blue-500 hover:underline">
+          <a href="/sign-up" className="text-white hover:underline">
             Sign Up
           </a>
         </p>

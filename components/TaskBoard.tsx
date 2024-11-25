@@ -34,11 +34,17 @@ const TaskCard: React.FC<{
   onEdit: (task: ITaskData) => void;
   onDelete: (taskId: string) => void;
   onDragStart: (task: ITaskData) => void;
-}> = ({ task, onEdit, onDelete, onDragStart }) => (
+  onTouchStart: (task: ITaskData) => void;
+  onTouchMove: (e: React.TouchEvent) => void;
+  onTouchEnd: () => void;
+}> = ({ task, onEdit, onDelete, onDragStart, onTouchStart, onTouchMove, onTouchEnd }) => (
   <div
     className="bg-opacity-70 bg-black p-4 rounded-lg shadow mb-2 cursor-move"
     draggable
     onDragStart={() => onDragStart(task)}
+    onTouchStart={() => onTouchStart(task)}
+    onTouchMove={onTouchMove}
+    onTouchEnd={onTouchEnd}
   >
     <h3 className="font-medium mb-1">{task.title}</h3>
     <p className="text-sm text-zinc-400 mb-2">{task.description}</p>
@@ -68,6 +74,8 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
   const [draggedTask, setDraggedTask] = useState<ITaskData | null>(null);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ITaskData | null>(null);
+  const [touchedTask, setTouchedTask] = useState<ITaskData | null>(null);
+  const [touchPosition, setTouchPosition] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -141,6 +149,37 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
     }
   };
 
+  const handleTouchStart = (task: ITaskData) => {
+    setTouchedTask(task);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchedTask) {
+      const touch = e.touches[0];
+      setTouchPosition({ x: touch.clientX, y: touch.clientY });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchedTask && touchPosition) {
+      const columns = document.querySelectorAll('.task-column');
+      columns.forEach((column) => {
+        const rect = column.getBoundingClientRect();
+        if (
+          touchPosition.x >= rect.left &&
+          touchPosition.x <= rect.right &&
+          touchPosition.y >= rect.top &&
+          touchPosition.y <= rect.bottom
+        ) {
+          const status = column.getAttribute('data-status') as 'pending' | 'doing' | 'completed';
+          handleDrop(status);
+        }
+      });
+    }
+    setTouchedTask(null);
+    setTouchPosition(null);
+  };
+
   const groupedTasks = {
     pending: tasks.filter(task => task.status === 'pending'),
     doing: tasks.filter(task => task.status === 'doing'),
@@ -175,7 +214,8 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
               {columns.map((column) => (
                 <div
                   key={column.id}
-                  className={`w-full md:w-1/3 p-4 rounded-lg ${column.color}`}
+                  className={`w-full md:w-1/3 p-4 rounded-lg ${column.color} task-column`}
+                  data-status={column.id}
                   onDragOver={handleDragOver}
                   onDrop={() => handleDrop(column.id)}
                 >
@@ -188,6 +228,9 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ teamId, currentUser }) => {
                         onEdit={handleEditTask}
                         onDelete={handleDeleteTask}
                         onDragStart={handleDragStart}
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
                       />
                     ))}
                   </div>

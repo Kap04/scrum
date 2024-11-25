@@ -22,7 +22,7 @@ export default function Home() {
           duration={3}
         />
         <div className="z-10">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl text-gray-300 md:text-6xl lg:text-9xl">
+          <h1 className="text-5xl font-extrabold tracking-tight sm:text-sm text-gray-300 md:text-6xl lg:text-9xl">
             Welcome to <span className="text-zinc-200">Scrum</span>
           </h1>
           <p className="mt-6 text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto">
@@ -68,7 +68,7 @@ export default function Home() {
           Join thousands of users already using Scrum to streamline workflows, boost efficiency, and drive productivity. Transform how you work and stay ahead of the competition.
         </p>
         <Button className="bg-zinc-300" asChild size="lg">
-          <Link href="/signup">Start Now!</Link>
+          <Link href="/sign-up">Start Now!</Link>
         </Button>
       </section>
     </main>
